@@ -1,6 +1,9 @@
 ## Description
 PyPSATopo is a tool that allows generating the topographical representation of any arbitrary [PyPSA](https://pypsa.org)-based network (thanks to the [DOT language](https://graphviz.org/doc/info/lang.html)). Besides easing the understanding of a network by providing its graphical representation, the tool helps debug it given that broken links and missing buses are shown in (slightly) different shapes and colors. Technically speaking, PyPSATopo can be thought of as a [reverse engineering](https://en.wikipedia.org/wiki/Reverse_engineering) tool for PyPSA-based networks.
 
+## Cloned Update
+This cloned update is an attempt to add in the transformer as a topology
+
 To get a quick overview of the capabilities of PyPSATopo, simply launch it in a terminal as follows:
 
 ```bash

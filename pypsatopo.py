@@ -27,8 +27,9 @@ import pandas
 
 
 # declare (public) global variables (these may be overwritten by the caller to adjust/personalize the topographical representation of the PyPSA-based network)
-DOT_REPRESENTATION = {"BUS": "   \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Bus: %s\nCarrier: %s\nUnit: %s\nGenerators: %d\nLoads: %d\nStores: %d\nStorage units: %d\nIncoming links: %d\nOutgoing links: %d\nLines: %d\n\nPower time series: %s %s\", shape = \"underline\", width = %.2f, height = 0.30, style = \"setlinewidth(%.2f)\", color = \"%s\"]",
-                      "MISSING_BUS": "   \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Bus: %s (missing)\nGenerators: %d\nLoads: %d\nStores: %d\nIncoming links: %d\nOutgoing links: %d\nLines: %d\n\nPower time series: N/A %s\", shape = \"underline\", width = %.2f, height = 0.30, style = \"setlinewidth(%.2f), dashed\", color = \"%s\"]",
+# Added: Transformer Oct-8-2025
+DOT_REPRESENTATION = {"BUS": "   \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Bus: %s\nCarrier: %s\nUnit: %s\nGenerators: %d\nTransformers: %d\nLoads: %d\nStores: %d\nStorage units: %d\nIncoming links: %d\nOutgoing links: %d\nLines: %d\n\nPower time series: %s %s\", shape = \"underline\", width = %.2f, height = 0.30, style = \"setlinewidth(%.2f)\", color = \"%s\"]",
+                      "MISSING_BUS": "   \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Bus: %s (missing)\nGenerators: %d\nTransformers: %d\nLoads: %d\nStores: %d\nIncoming links: %d\nOutgoing links: %d\nLines: %d\n\nPower time series: N/A %s\", shape = \"underline\", width = %.2f, height = 0.30, style = \"setlinewidth(%.2f), dashed\", color = \"%s\"]",
                       "GENERATOR": "   \"%s (generator)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Generator: %s\nBus: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f %s\nPower set: %s %s\nEfficiency: %.2f\nCapital cost: %.2f currency/%s\nMarginal cost: %s currency/%sh\n\nOptimised nominal power: %.2f %s\nPower time series: %s %s\", shape = \"circle\", width = %.2f, style = \"setlinewidth(%.2f)\", color = \"%s\"]   \"%s (generator)\" -> \"%s (bus)\" [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]",
                       "LOAD": "   \"%s (load)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Load: %s\nBus: %s\nCarrier: %s\nPower set: %s %s\", shape = \"invtriangle\", width = %.2f, height = %.2f, style = \"setlinewidth(%.2f)\", color = \"%s\"]   \"%s (bus)\" -> \"%s (load)\" [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]",
                       "STORE": "   \"%s (store)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Store: %s\nBus: %s\nCarrier: %s\nExtendable nominal energy: %s\nNominal energy: %.2f %sh\nPower set: %s %s\nCyclic energy: %s\nCapital cost: %.2f currency/%s\nMarginal cost: %s currency/%sh\n\nOptimised nominal energy: %.2f %sh\nEnergy time series: %s %sh\nPower time series: %s %s\", shape = \"box\", width = %.2f, style = \"setlinewidth(%.2f)\", color = \"%s\"]   \"%s (bus)\" -> \"%s (store)\" [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]",
@@ -43,7 +44,10 @@ DOT_REPRESENTATION = {"BUS": "   \"%s (bus)\" [label = <<font color = \"%s\">%s<
                       "MULTI_LINK_BRANCH": "   \"%s\" -> \"%s\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Multi-link: %s\nFrom: %s\nTo: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f MW\nEfficiency: %.2f\nCapital cost: %.2f currency/MW\nMarginal cost: %s currency/MWh\n\nOptimised nominal power: %.2f MW\nPower time series (%s): %s MW\nPower time series (%s): %s MW\", style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"%s\", arrowsize = %.2f]",
                       "BROKEN_MULTI_LINK_BRANCH": "   \"%s\" -> \"%s\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Multi-link: %s\nFrom: %s\nTo: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f MW\nEfficiency: %.2f\nCapital cost: %.2f currency/MW\nMarginal cost: %s currency/MWh\n\nOptimised nominal power: 0.00 MW\nPower time series (%s): %s MW\nPower time series (%s): %s MW\", style = \"setlinewidth(%.2f), dashed\", color = \"%s\", arrowhead = \"%s\", arrowsize = %.2f]",
                       "LINE": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Line: %s\nBus0: %s\nBus1: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f MVA\nCapital cost: %.2f currency/MVA\n\nOptimised nominal power: %.2f MVA\nPower time series (p0): %s MW\nPower time series (p1): %s MW\", style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"%s\", arrowtail = \"%s\", arrowsize = %.2f, dir = \"both\"]",
-                      "BROKEN_LINE": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Line: %s\nBus0: %s\nBus1: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f MVA\nCapital cost: %.2f currency/MVA\n\nOptimised nominal power: 0.00 MVA\nPower time series (p0): N/A MW\nPower time series (p1): N/A MW\", style = \"setlinewidth(%.2f), dashed\", color = \"%s\", arrowhead = \"%s\", arrowtail = \"%s\", arrowsize = %.2f, dir = \"both\"]"
+                      "BROKEN_LINE": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Line: %s\nBus0: %s\nBus1: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f MVA\nCapital cost: %.2f currency/MVA\n\nOptimised nominal power: 0.00 MVA\nPower time series (p0): N/A MW\nPower time series (p1): N/A MW\", style = \"setlinewidth(%.2f), dashed\", color = \"%s\", arrowhead = \"%s\", arrowtail = \"%s\", arrowsize = %.2f, dir = \"both\"]",
+                      "TRANSFORMER": "    \"%s (transformer)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Transformer: %s\nBus0: %s\nBus1: %s\nExtendable nominal power: %s\nNominal power: %.2f MW\nCapital cost: %.2f \", shape = \"circle\", width = %.2f, style = \"setlinewidth(%.2f)\", color = \"%s\"]   \"%s (transformer)\" -> \"%s (bus)\" [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]"
+                      #"TRANSFORMER": "    \"%s (transformer)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Transformer: %s\nBus0: %s\nBus1: %s\nExtendable nominal power: %s\nNominal power: %.2f MW\nCapital cost: %.2f \", shape = \"circle\", width = %.2f, style = \"setlinewidth(%.2f)\", color = \"%s\"]"
+#GENERATOR": "   \"%s (generator)\" [label = <<font color = \"%s\">%s</font>>,
                      }
 FILE_OUTPUT = "topography.svg"
 FILE_FORMAT = "svg"   # acceptable values are: "svg", "png", "jpg", "gif", "pdf" and "ps"
@@ -84,6 +88,9 @@ LINE_ARROW_SIZE = 1.2
 BROKEN_MISSING_COLOR = "grey60"
 FADED_TEXT_COLOR = "#ffb0b0"
 FADED_COMPONENT_COLOR = "grey90"
+TRANSFORMER_MINIMUM_WIDTH = 1.1 # Added transformer Oct-8-2025
+TRANSFORMER_THICKNESS = 2.0
+TRANSFORMER_COLOR = "black"
 
 
 
@@ -187,14 +194,16 @@ def _get_components(network, focus, log, log_info, log_warning):
     if log or log_info:
         print("[INF] Retrieving buses from network")
     buses = network.buses
+    print(f"Buses in network: {buses}")
+
     buses_t = getattr(network, "buses_t", None)
     for i in range(len(buses)):
         bus = buses.index[i]
         carrier = buses.carrier.iloc[i]
         unit = "MW" if buses.unit.iloc[i] == "None" else buses.unit.iloc[i]
         p_time_series = _format_series(buses_t.p[bus]) if buses_t and bus in buses_t.p else "N/A"
-        result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": False, "selected": False, "carrier": carrier, "unit": unit, "p_time_series": p_time_series}
-
+        result[bus] = {"generators": list(),"transformers": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "transformers_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": False, "selected": False, "carrier": carrier, "unit": unit, "p_time_series": p_time_series}
+        print(f"result - bus: {bus} - {result[bus]}")
 
     # get generators from (PyPSA) network
     if log or log_info:
@@ -223,15 +232,58 @@ def _get_components(network, focus, log, log_info, log_warning):
             else:
                 if log or log_warning:
                     print("[WAR] Generator '%s' connects to bus '%s' which does not exist" % (generator, bus))
-                result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         else:
             if log or log_warning:
                 print("[WAR] Generator '%s' does not have a bus specified" % generator)
             bus = "bus #%d" % _MISSING_BUS_COUNT
             _MISSING_BUS_COUNT += 1
-            result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+            result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         result[bus]["generators"].append([generator, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, False])
+        print(f"\nresult generators - bus: {bus} - {result[bus]["generators"]}")
 
+    # get transformers from (PyPSA) network   
+    if log or log_info:
+        print("[INF] Retrieving transformers from network")
+    transformers = network.transformers
+    print(f"\nTransformers in network: {transformers}")
+
+    transformers_t = getattr(network, "transformers_t", None)
+    for i in range(len(transformers)):
+        transformer = transformers.index[i]
+        bus = transformers.bus0.iloc[i]
+        bus1 = transformers.bus1.iloc[i]
+        #carrier = transformers.carrier.iloc[i]
+        tmp = buses.loc[bus].unit
+        print(f"trans. unit: {tmp}")
+
+        unit = "MW" if tmp == "None" else tmp
+        s_nom_extendable = "True" if transformers.s_nom_extendable.iloc[i] else "False"
+        s_nom = transformers.s_nom.iloc[i]
+        #p_set = _format_series(transformers_t.p_set[transformer]) if transformers_t and transformer in transformers_t.p_set else "%.2f" % transformers.p_set.iloc[i]
+        #efficiency = transformers.efficiency.iloc[i]
+        capital_cost = transformers.capital_cost.iloc[i]
+        #marginal_cost = _format_series(transformers_t.marginal_cost[transformer]) if transformers_t and transformer in transformers_t.marginal_cost else "%.2f" % transformers.marginal_cost.iloc[i]
+        #p_nom_opt = transformers.p_nom_opt.iloc[i]
+        #p_time_series = _format_series(transformers_t.p[transformer]) if transformers_t and transformer in transformers_t.p else "N/A"
+        if bus:
+            if bus in result:
+                if result[bus]["missing"]:
+                    if log or log_warning:
+                        print("[WAR] Transformer '%s' connects to bus '%s' which does not exist" % (transformer, bus))
+            else:
+                if log or log_warning:
+                    print("[WAR] Transformer '%s' connects to bus '%s' which does not exist" % (transformer, bus))
+                result[bus] = {"generators": list(), "transformers": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+        else:
+            if log or log_warning:
+                print("[WAR] Transformer '%s' does not have a bus specified" % transformer)
+            bus = "bus #%d" % _MISSING_BUS_COUNT
+            _MISSING_BUS_COUNT += 1
+            result[bus] = {"generators": list(), "transformers": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+        #result[bus]["transformers"].append([transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, False])
+        result[bus]["transformers"].append([transformer, bus1, s_nom_extendable, s_nom, capital_cost, False])
+        print(f"Result transformers - bus: {bus} -  {result[bus]["transformers"]}")
 
     # get loads from (PyPSA) network
     if log or log_info:
@@ -253,13 +305,13 @@ def _get_components(network, focus, log, log_info, log_warning):
             else:
                 if log or log_warning:
                     print("[WAR] Load '%s' connects to bus '%s' which does not exist" % (load, bus))
-                result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         else:
             if log or log_warning:
                 print("[WAR] Load '%s' does not have a bus specified" % load)
             bus = "bus #%d" % _MISSING_BUS_COUNT
             _MISSING_BUS_COUNT += 1
-            result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+            result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         result[bus]["loads"].append([load, carrier, unit, p_set, False])
 
 
@@ -291,13 +343,13 @@ def _get_components(network, focus, log, log_info, log_warning):
             else:
                 if log or log_warning:
                     print("[WAR] Store '%s' connects to bus '%s' which does not exist" % (store, bus))
-                result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         else:
             if log or log_warning:
                 print("[WAR] Store '%s' does not have a bus specified" % store)
             bus = "bus #%d" % _MISSING_BUS_COUNT
             _MISSING_BUS_COUNT += 1
-            result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+            result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         result[bus]["stores"].append([store, carrier, unit, e_nom_extendable, e_nom, p_set, e_cyclic, capital_cost, marginal_cost, e_nom_opt, e_time_series, p_time_series, False])
 
 
@@ -328,13 +380,13 @@ def _get_components(network, focus, log, log_info, log_warning):
             else:
                 if log or log_warning:
                     print("[WAR] Storage unit '%s' connects to bus '%s' which does not exist" % (storage_unit, bus))
-                result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         else:
             if log or log_warning:
                 print("[WAR] Storage unit '%s' does not have a bus specified" % storage_unit)
             bus = "bus #%d" % _MISSING_BUS_COUNT
             _MISSING_BUS_COUNT += 1
-            result[bus] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+            result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         result[bus]["storage_units"].append([storage_unit, carrier, unit, p_nom_extendable, p_nom, p_set, cyclic_state_charge, capital_cost, marginal_cost, p_nom_opt, p_time_series, False])
 
 
@@ -417,14 +469,14 @@ def _get_components(network, focus, log, log_info, log_warning):
                 else:
                     if log or log_warning:
                         print("[WAR] Link '%s' connects to bus '%s' (bus0) which does not exist" % (link, bus0))
-                    result[bus0] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                    result[bus0] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
                     missing0 = True
             else:
                 if log or log_warning:
                     print("[WAR] Link '%s' does not have bus0 specified" % link)
                 bus0 = "bus #%d" % _MISSING_BUS_COUNT
                 _MISSING_BUS_COUNT += 1
-                result[bus0] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                result[bus0] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
                 missing0 = True
             if bus1:
                 if bus1 in result:
@@ -435,14 +487,14 @@ def _get_components(network, focus, log, log_info, log_warning):
                 else:
                     if log or log_warning:
                         print("[WAR] Link '%s' connects to bus '%s' (bus1) which does not exist" % (link, bus1))
-                    result[bus1] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                    result[bus1] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
                     missing1 = True
             else:
                 if log or log_warning:
                     print("[WAR] Link '%s' does not have bus1 specified" % link)
                 bus1 = "bus #%d" % _MISSING_BUS_COUNT
                 _MISSING_BUS_COUNT += 1
-                result[bus1] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                result[bus1] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
                 missing1 = True
             result[bus0]["links"].append([link, bus1, carrier, p_nom_extendable, p_nom, efficiency, capital_cost, marginal_cost, p_nom_opt, p0_time_series, p1_time_series, bidirectional, True, missing0 or missing1, False])
             if focus:
@@ -464,7 +516,7 @@ def _get_components(network, focus, log, log_info, log_warning):
                     else:
                         if log or log_warning:
                             print("[WAR] Link '%s' connects to bus '%s' (%s) which does not exist" % (links.index[i], bus_value, key))
-                        result[bus_value] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                        result[bus_value] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
                         if key != "bus0":
                             missing += 1
                 else:
@@ -472,7 +524,7 @@ def _get_components(network, focus, log, log_info, log_warning):
                         print("[WAR] Link '%s' does not have %s specified" % (links.index[i], key))
                     bus_value = "bus #%d" % _MISSING_BUS_COUNT
                     _MISSING_BUS_COUNT += 1
-                    result[bus_value] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                    result[bus_value] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
                     value[0] = bus_value
                     if key != "bus0":
                         missing += 1
@@ -529,14 +581,14 @@ def _get_components(network, focus, log, log_info, log_warning):
             else:
                 if log or log_warning:
                     print("[WAR] Line '%s' connects to bus '%s' (bus0) which does not exist" % (line, bus0))
-                result[bus0] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                result[bus0] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
                 missing0 = True
         else:
             if log or log_warning:
                 print("[WAR] Line '%s' does not have bus0 specified" % line)
             bus0 = "bus #%d" % _MISSING_BUS_COUNT
             _MISSING_BUS_COUNT += 1
-            result[bus0] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+            result[bus0] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
             missing0 = True
         if bus1:
             if bus1 in result:
@@ -547,14 +599,14 @@ def _get_components(network, focus, log, log_info, log_warning):
             else:
                 if log or log_warning:
                     print("[WAR] Line '%s' connects to bus '%s' (bus1) which does not exist" % (line, bus1))
-                result[bus1] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+                result[bus1] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
                 missing1 = True
         else:
             if log or log_warning:
                 print("[WAR] Line '%s' does not have bus1 specified" % line)
             bus1 = "bus #%d" % _MISSING_BUS_COUNT
             _MISSING_BUS_COUNT += 1
-            result[bus1] = {"generators": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
+            result[bus1] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
             missing1 = True
         result[bus0]["lines"].append([line, bus1, carrier, s_nom_extendable, s_nom, capital_cost, s_nom_opt, p0_time_series, p1_time_series, True, missing0 or missing1, False])
         if focus:
@@ -565,7 +617,7 @@ def _get_components(network, focus, log, log_info, log_warning):
 
 
 
-def _process_components(buses, bus_filter, generator_filter, load_filter, store_filter, storage_unit_filter, link_filter, line_filter, carrier_filter, negative_efficiency, broken_missing, carrier_color, context):
+def _process_components(buses, bus_filter, generator_filter, transformer_filter, load_filter, store_filter, storage_unit_filter, link_filter, line_filter, carrier_filter, negative_efficiency, broken_missing, carrier_color, context):
     """
     Parameters
     ----------
@@ -630,6 +682,20 @@ def _process_components(buses, bus_filter, generator_filter, load_filter, store_
             elif context:
                 buses[bus]["generators_count"] += 1
 
+        # process transformers (attached to the bus)
+        transformers = values0["transformers"]
+        for values1 in transformers:
+            #transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected = values1
+            transformer,  bus1, s_nom_extendable, s_nom, capital_cost, selected = values1
+            if values0["selected"] and (not transformer_filter or transformer_filter.match(transformer)) and (not carrier_filter or carrier_filter.match(carrier)):
+                #if carrier_color:
+                #    if carrier and carrier not in carriers:
+                #        carriers[carrier] = None
+                values1[-1] = True
+                buses[bus]["transformers_count"] += 1
+            elif context:
+                buses[bus]["transformers_count"] += 1
+            #print(f"transformers_count: {buses[bus]["transformers_count"]}")
 
         # process loads (attached to the bus)
         loads = values0["loads"]
@@ -796,6 +862,7 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     result = list()
     result_buses = list()
     result_generators = list()
+    result_transformers = list()
     result_loads = list()
     result_stores = list()
     result_storage_units = list()
@@ -835,6 +902,7 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     bus_representation = DOT_REPRESENTATION["BUS"]
     missing_bus_representation = DOT_REPRESENTATION["MISSING_BUS"]
     generator_representation = DOT_REPRESENTATION["GENERATOR"]
+    transformer_representation = DOT_REPRESENTATION["TRANSFORMER"]
     load_representation = DOT_REPRESENTATION["LOAD"]
     store_representation = DOT_REPRESENTATION["STORE"]
     storage_unit_representation = DOT_REPRESENTATION["STORAGE_UNIT"]
@@ -855,21 +923,41 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     for bus, values in buses.items():
 
         # represent bus in DOT
+        print(f"transformers_count: {buses[bus]["transformers_count"]}")
+        print("")
         if values["missing"]:
             if values["selected"]:
-                result_buses.append(missing_bus_representation % (bus, TEXT_COLOR, _replace(bus), bus, buses[bus]["generators_count"], buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, BROKEN_MISSING_COLOR))
+                result_buses.append(missing_bus_representation % (bus, TEXT_COLOR, _replace(bus), bus, buses[bus]["generators_count"], buses[bus]["transformers_count"],buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, BROKEN_MISSING_COLOR))
             elif context and broken_missing:
-                result_buses.append(missing_bus_representation % (bus, FADED_TEXT_COLOR, _replace(bus), bus, buses[bus]["generators_count"], buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, FADED_COMPONENT_COLOR))
+                result_buses.append(missing_bus_representation % (bus, FADED_TEXT_COLOR, _replace(bus), bus, buses[bus]["generators_count"], buses[bus]["transformers_count"],buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, FADED_COMPONENT_COLOR))
         else:
             if values["selected"]:
                 bus_color = carriers[values["carrier"]] if values["carrier"] in carriers else BUS_COLOR
-                result_buses.append(bus_representation % (bus, TEXT_COLOR, _replace(bus), bus, values["carrier"], values["unit"], buses[bus]["generators_count"], buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["p_time_series"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, bus_color))
-            elif context:
-                result_buses.append(bus_representation % (bus, FADED_TEXT_COLOR, _replace(bus), bus, values["carrier"], values["unit"], buses[bus]["generators_count"], buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["p_time_series"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, FADED_COMPONENT_COLOR))
+                print(f"\nbus representation - bus: {bus} - {buses[bus]}")
 
+                # Add debugging before the problematic line
+                print(f"bus: {bus} ({type(bus)})")
+                print(f"TEXT_COLOR: {TEXT_COLOR} ({type(TEXT_COLOR)})")
+                print(f"replace(bus): {_replace(bus)}")
+                print(f"values['carrier']: {values['carrier']} ({type(values['carrier'])})")
+                print(f"values['unit']: {values['unit']} ({type(values['unit'])})")
+
+                # Check all the counts
+                for key in ["generators_count", "transformers_count", "loads_count", "stores_count", 
+                            "storage_units_count", "incoming_links_count", "outgoing_links_count", "lines_count"]:
+                    print(f"buses[bus]['{key}']: {buses[bus][key]} ({type(buses[bus][key])})")
+
+                result_buses.append(bus_representation % (bus, TEXT_COLOR, _replace(bus), bus, values["carrier"], values["unit"], buses[bus]["generators_count"], buses[bus]["transformers_count"], buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["p_time_series"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, bus_color))
+            elif context:
+                result_buses.append(bus_representation % (bus, FADED_TEXT_COLOR, _replace(bus), bus, values["carrier"], values["unit"], buses[bus]["generators_count"], buses[bus]["transformers_count"],buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["p_time_series"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, FADED_COMPONENT_COLOR))
+
+        print(f"\nresult_buses: {result_buses}")
 
         # represent generators (attached to the bus) in DOT
         generators = values["generators"]
+        print(f"generators_count: {buses[bus]["generators_count"]}")
+        print(f"generators: {generators}")
+
         for generator, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected in generators:
             if selected:
                 generator_color = carriers[carrier] if carrier in carriers else GENERATOR_COLOR
@@ -877,6 +965,80 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
             elif context and (not values["missing"] or broken_missing):
                 result_generators.append(generator_representation % (generator, FADED_TEXT_COLOR, _replace(generator), generator, bus, carrier, p_nom_extendable, p_nom, unit, p_set, unit, efficiency, capital_cost, unit, marginal_cost, unit, p_nom_opt, unit, p_time_series, unit, GENERATOR_MINIMUM_WIDTH, GENERATOR_THICKNESS, FADED_COMPONENT_COLOR, generator, bus, LINK_THICKNESS, FADED_COMPONENT_COLOR))
 
+        # represent transformers (attached to the bus) in DOT
+        transformers = values["transformers"]
+        print(f"transformers_count: {buses[bus]["transformers_count"]}")
+        print(f"transformers: {transformers}")
+
+        #for transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected in transformers:
+        for transformer, bus1, s_nom_extendable, s_nom, capital_cost, selected in transformers:
+            if selected:
+                transformer_color = carriers[carrier] if carrier in carriers else TRANSFORMER_COLOR
+                print(f"transformer_color: { transformer_color } "  )
+                #result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, s_nom_extendable, s_nom, unit, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color, bus, transformer, LINK_THICKNESS, transformer_color))
+                #"TRANSFORMER": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, 
+                # tooltip = \"Transformer: %s\n
+                # Bus0: %s\n
+                # Bus1: %s\n
+                # Extendable nominal power: %s\n
+                # Nominal power: %.2f MW\n
+                # Capital cost: %.2f currency/MW\", 
+                # style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"%s\", arrowsize = %.2f]"
+
+                # "TRANSFORMER": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, 
+                # tooltip = \"Transformer: %s\n
+                # Bus0: %s\n
+                # Bus1: %s\n
+                # Extendable nominal power: %s\n
+                # Nominal power: %.2f MW\n
+                # Capital cost: %.2f currency/MW\", 
+                # shape = \"circle\", 
+                # width = %.2f, 
+                # style = \"setlinewidth(%.2f)\", color = \"%s\"]   
+                # \"%s (transformer)\" -> \"%s (bus)\" 
+                # [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]"
+
+
+                #"GENERATOR": "   \"%s (generator)\" [label = <<font color = \"%s\">%s</font>>, 
+                # tooltip = \"Generator: %s\n
+                # Bus: %s\n
+                # Carrier: %s\n
+                # Extendable nominal power: %s\n
+                # Nominal power: %.2f %s\n
+                # Power set: %s %s\n
+                # Efficiency: %.2f\nC
+                # apital cost: %.2f currency/%s\n
+                # Marginal cost: %s currency/%sh\n\n
+                # Optimised nominal power: %.2f %s\n
+                # Power time series: %s %s\", 
+
+                # shape = \"circle\", 
+                # width = %.2f, 
+                # style = \"setlinewidth(%.2f)\", 
+                # color = \"%s\"]   \"%s (generator)\" -> \"%s (bus)\" 
+                # [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]",
+
+                # Add this right before line 1021 to see what's causing the issue
+                print(f"\ntransformer: {transformer} (type: {type(transformer)})")
+                print(f"TEXT_COLOR: {TEXT_COLOR} (type: {type(TEXT_COLOR)})")
+                print(f"replace(transformer): {_replace(transformer)}")
+                print(f"bus: {bus} (type: {type(bus)})")
+                print(f"bus1: {bus1} (type: {type(bus1)})")
+                print(f"s_nom_extendable: {s_nom_extendable} (type: {type(s_nom_extendable)})")
+                print(f"s_nom: {s_nom} (type: {type(s_nom)})")
+                print(f"capital_cost: {capital_cost} (type: {type(capital_cost)})")
+                print(f"TRANSFORMER_MINIMUM_WIDTH: {TRANSFORMER_MINIMUM_WIDTH} (type: {type(TRANSFORMER_MINIMUM_WIDTH)})")
+                print(f"TRANSFORMER_THICKNESS: {TRANSFORMER_THICKNESS} (type: {type(TRANSFORMER_THICKNESS)})")
+                print(f"transformer_color: {transformer_color} (type: {type(transformer_color)})")
+                      
+                result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color, bus, transformer, LINK_THICKNESS, transformer_color))
+                #result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color))
+ 
+
+            elif context and (not values["missing"] or broken_missing):
+                result_transformers.append(transformer_representation % (transformer, FADED_TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, FADED_COMPONENT_COLOR, transformer, bus, LINK_THICKNESS, FADED_COMPONENT_COLOR))
+
+        
 
         # represent loads (attached to the bus) in DOT
         loads = values["loads"]
@@ -1102,6 +1264,10 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     result.extend(result_generators)
     result.append("")
 
+    # add transformers to result -- added 08-Oct-2025
+    result.append("   // transformers (%d)" % len(result_transformers))
+    result.extend(result_transformers)
+    result.append("")
 
     # add loads to result
     result.append("   // loads (%d)" % len(result_loads))
@@ -1144,11 +1310,11 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     result.extend(result_lines)
 
 
-    return result, len(result_buses), len(result_generators), len(result_loads), len(result_stores), len(result_storage_units), len(result_links) + len(result_multi_link_trunks) / 2, len(result_lines)
+    return result, len(result_buses), len(result_generators), len(result_transformers), len(result_loads), len(result_stores), len(result_storage_units), len(result_links) + len(result_multi_link_trunks) / 2, len(result_lines)
 
 
 
-def _focus(components, bus, neighbourhood, bus_filter, generator_filter, load_filter, store_filter, storage_unit_filter, link_filter, line_filter, carrier_filter, negative_efficiency, broken_missing, carrier_color, context, log, log_info, log_warning, carriers):
+def _focus(components, bus, neighbourhood, bus_filter, generator_filter, transformer_filter, load_filter, store_filter, storage_unit_filter, link_filter, line_filter, carrier_filter, negative_efficiency, broken_missing, carrier_color, context, log, log_info, log_warning, carriers):
     """
     Parameters
     ----------
@@ -1161,6 +1327,8 @@ def _focus(components, bus, neighbourhood, bus_filter, generator_filter, load_fi
     bus_filter : TYPE
         DESCRIPTION.
     generator_filter : TYPE
+        DESCRIPTION.
+    transformer_filter : TYPE
         DESCRIPTION.
     load_filter : TYPE
         DESCRIPTION.
@@ -1250,6 +1418,20 @@ def _focus(components, bus, neighbourhood, bus_filter, generator_filter, load_fi
                 components[bus]["generators_count"] += 1
             elif context:
                 components[bus]["generators_count"] += 1
+
+        # Added Oct 11 - 2025
+        # process transformers (attached to the bus currently on focus)
+        transformers = values0["transformers"]
+        for values1 in generators:
+            transformers, carrier, bus1, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected = values1
+            if values0["selected"] and (not transformer_filter or transformer_filter.match(transformer)) and (not carrier_filter or carrier_filter.match(carrier)):
+                if carrier_color:
+                    if carrier and carrier not in carriers:
+                        carriers[carrier] = None
+                values1[-1] = True
+                components[bus]["transformers_count"] += 1
+            elif context:
+                components[bus]["transformers_count"] += 1
 
 
         # process loads (attached to the bus currently on focus)
@@ -1473,7 +1655,9 @@ def _generate_output(dot_representation, file_output, file_format, log, log_info
 
 
 
-def generate(network, focus = None, neighbourhood = 0, bus_filter = None, generator_filter = None, load_filter = None, store_filter = None, storage_unit_filter = None, link_filter = None, line_filter = None, carrier_filter = None, negative_efficiency = True, broken_missing = False, carrier_color = None, context = False, file_output = FILE_OUTPUT, file_format = FILE_FORMAT, log = False, log_info = False, log_warning = False):
+#def generate(network, focus = None, neighbourhood = 0, bus_filter = None, generator_filter = None, transformer_filter = None, load_filter = None, store_filter = None, storage_unit_filter = None, link_filter = None, line_filter = None, carrier_filter = None, negative_efficiency = True, broken_missing = False, carrier_color = None, context = False, file_output = FILE_OUTPUT, file_format = FILE_FORMAT, log = False, log_info = False, log_warning = False):
+def generate(network, focus = None, neighbourhood = 0, bus_filter = None, generator_filter = None, transformer_filter = None,load_filter = None, store_filter = None, storage_unit_filter = None, link_filter = None, line_filter = None, carrier_filter = None, negative_efficiency = True, broken_missing = False, carrier_color = None, context = False, file_output = FILE_OUTPUT, file_format = FILE_FORMAT, log = False, log_info = False, log_warning = False):
+
     """
     Parameters
     ----------
@@ -1486,6 +1670,8 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
     bus_filter : TYPE, optional
         DESCRIPTION. The default is None.
     generator_filter : TYPE, optional
+        DESCRIPTION. The default is None.
+    transformer_filter : TYPE, optional
         DESCRIPTION. The default is None.
     load_filter : TYPE, optional
         DESCRIPTION. The default is None.
@@ -1572,6 +1758,8 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
     # compile regular expressions
     bus_filter_regexp = re.compile(bus_filter) if bus_filter else None
     generator_filter_regexp = re.compile(generator_filter) if generator_filter else None
+    # Add transformer: 08-Oct-2025
+    transformer_filter_regexp = re.compile(transformer_filter) if transformer_filter else None
     load_filter_regexp = re.compile(load_filter) if load_filter else None
     store_filter_regexp = re.compile(store_filter) if store_filter else None
     storage_unit_filter_regexp = re.compile(storage_unit_filter) if storage_unit_filter else None
@@ -1605,7 +1793,7 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
                 value = neighbourhood
             else:   # list
                 value = neighbourhood[0] if len(neighbourhood) else 0
-            _focus(components, focus, value, bus_filter_regexp, generator_filter_regexp, load_filter_regexp, store_filter_regexp, storage_unit_filter_regexp, link_filter_regexp, line_filter_regexp, negative_efficiency, broken_missing, carrier_color, context, log, log_info, log_warning, carriers)
+            _focus(components, focus, value, bus_filter_regexp, generator_filter_regexp, transformer_filter_regexp, load_filter_regexp, store_filter_regexp, storage_unit_filter_regexp, link_filter_regexp, line_filter_regexp, negative_efficiency, broken_missing, carrier_color, context, log, log_info, log_warning, carriers)
         else:   # list
             for i in range(len(focus)):
                 bus = focus[i]
@@ -1614,7 +1802,7 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
                         value = neighbourhood
                     else:   # list
                         value = neighbourhood[i] if i < len(neighbourhood) else 0
-                    _focus(components, bus, value, bus_filter_regexp, generator_filter_regexp, load_filter_regexp, store_filter_regexp, storage_unit_filter_regexp, link_filter_regexp, line_filter_regexp, carrier_filter_regexp, negative_efficiency, broken_missing, carrier_color, context, log, log_info, log_warning, carriers)
+                    _focus(components, bus, value, bus_filter_regexp, generator_filter_regexp, transformer_filter_regexp, load_filter_regexp, store_filter_regexp, storage_unit_filter_regexp, link_filter_regexp, line_filter_regexp, carrier_filter_regexp, negative_efficiency, broken_missing, carrier_color, context, log, log_info, log_warning, carriers)
                     visited.add(bus)
 
 
@@ -1688,11 +1876,11 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
                         remove[line][1] = True
 
     else:
-        carriers = _process_components(components, bus_filter_regexp, generator_filter_regexp, load_filter_regexp, store_filter_regexp, storage_unit_filter_regexp, link_filter_regexp, line_filter_regexp, carrier_filter_regexp, negative_efficiency, broken_missing, carrier_color, context)
+        carriers = _process_components(components, bus_filter_regexp, generator_filter_regexp, transformer_filter_regexp, load_filter_regexp, store_filter_regexp, storage_unit_filter_regexp, link_filter_regexp, line_filter_regexp, carrier_filter_regexp, negative_efficiency, broken_missing, carrier_color, context)
 
 
     # get DOT representation of components
-    representation, buses_count, generators_count, loads_count, stores_count, storage_units_count, links_count, lines_count = _represent_components(components, carriers, negative_efficiency, broken_missing, carrier_color, context, log, log_info, log_warning)
+    representation, buses_count, generators_count, transformers_count, loads_count, stores_count, storage_units_count, links_count, lines_count = _represent_components(components, carriers, negative_efficiency, broken_missing, carrier_color, context, log, log_info, log_warning)
 
 
     # add extension to file output in case it does not have one
@@ -1713,6 +1901,8 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
     result.append("//    neighbourhood=%s" % neighbourhood)
     result.append("//    bus_filter=%s" % bus_filter)
     result.append("//    generator_filter=%s" % generator_filter)
+    # Add Transformer 08-Oct-2025
+    result.append("//    transformer_filter=%s" % transformer_filter)
     result.append("//    load_filter=%s" % load_filter)
     result.append("//    store_filter=%s" % store_filter)
     result.append("//    storage_unit_filter=%s" % storage_unit_filter)
@@ -1745,7 +1935,11 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
     result.append("   bgcolor = \"%s\"" % BACKGROUND_COLOR)
     result.append("   labelloc = \"t\"")
     result.append("   label = \"%s\n\n\n           \"" % network_name)
-    result.append("   tooltip = \"Network: %s\nBuses: %d (out of %d)\nGenerators: %d (out of %d)\nLoads: %s (out of %d)\nStores: %d (out of %d)\nStorage units: %d (out of %d)\nLinks: %d (out of %d)\nLines: %d (out of %d)\nSnapshots: %d\"" % (network_name, buses_count, len(pypsa_network.buses), generators_count, len(pypsa_network.generators), loads_count, len(pypsa_network.loads), stores_count, len(pypsa_network.stores), storage_units_count, len(pypsa_network.storage_units), links_count, len(pypsa_network.links), lines_count, len(pypsa_network.lines), len(pypsa_network.snapshots)))
+    # Add transformer
+    #result.append("   tooltip = \"Network: %s\nBuses: %d (out of %d)\nGenerators: %d (out of %d)\nTransformers: %d (out of %d)\nLoads: %s (out of %d)\nStores: %d (out of %d)\nStorage units: %d (out of %d)\nLinks: %d (out of %d)\nLines: %d (out of %d)\nSnapshots: %d\"" % (network_name, buses_count, len(pypsa_network.buses), generators_count, len(pypsa_network.generators), loads_count, len(pypsa_network.loads), stores_count, len(pypsa_network.stores), storage_units_count, len(pypsa_network.storage_units), links_count, len(pypsa_network.links), lines_count, len(pypsa_network.lines), len(pypsa_network.snapshots)))
+    #result.append("   tooltip = \"Network: %s\nBuses: %d (out of %d)\nGenerators: %d (out of %d)\nLoads: %s (out of %d)\nStores: %d (out of %d)\nStorage units: %d (out of %d)\nLinks: %d (out of %d)\nLines: %d (out of %d)\nSnapshots: %d\"" % (network_name, buses_count, len(pypsa_network.buses), generators_count, len(pypsa_network.generators), loads_count, len(pypsa_network.loads), stores_count, len(pypsa_network.stores), storage_units_count, len(pypsa_network.storage_units), links_count, len(pypsa_network.links), lines_count, len(pypsa_network.lines), len(pypsa_network.snapshots)))
+    result.append("   tooltip = \"Network: %s\nBuses: %d (out of %d)\nGenerators: %d (out of %d)\nTransformers: %d (out of %d)\nLoads: %s (out of %d)\nStores: %d (out of %d)\nStorage units: %d (out of %d)\nLinks: %d (out of %d)\nLines: %d (out of %d)\nSnapshots: %d\"" % (network_name, buses_count, len(pypsa_network.buses), generators_count, len(pypsa_network.generators), transformers_count, len(pypsa_network.transformers),loads_count, len(pypsa_network.loads), stores_count, len(pypsa_network.stores), storage_units_count, len(pypsa_network.storage_units), links_count, len(pypsa_network.links), lines_count, len(pypsa_network.lines), len(pypsa_network.snapshots)))
+ 
     result.append("   rankdir = \"%s\"" % RANK_DIRECTION)
     result.append("   ranksep = %.2f" % RANK_SEPARATION)
     result.append("   nodesep = %.2f" % NODE_SEPARATION)
@@ -1798,6 +1992,8 @@ if __name__ == "__main__":
     parser.add_argument("--neighbourhood", nargs = "+", type = int, help = "Specify how much neighbourhood (around the bus to focus on) should be visited")
     parser.add_argument("--bus-filter", action = "store", help = "Include/exclude buses in/from the topographical representation of the network in function of a regular expression")
     parser.add_argument("--generator-filter", action = "store", help = "Include/exclude generators in/from the topographical representation of the network in function of a regular expression")
+    # Add transformer: Oct-08-2025
+    parser.add_argument("--transformer-filter", action = "store", help = "Include/exclude transformers in/from the topographical representation of the network in function of a regular expression")
     parser.add_argument("--load-filter", action = "store", help = "Include/exclude loads in/from the topographical representation of the network in function of a regular expression")
     parser.add_argument("--store-filter", action = "store", help = "Include/exclude stores in/from the topographical representation of the network in function of a regular expression")
     parser.add_argument("--storage-unit-filter", action = "store", help = "Include/exclude storage units in/from the topographical representation of the network in function of a regular expression")
@@ -1823,6 +2019,8 @@ if __name__ == "__main__":
         neighbourhood = args.neighbourhood[0] if len(args.neighbourhood) == 1 else args.neighbourhood
     bus_filter = args.bus_filter if args.bus_filter else None
     generator_filter = args.generator_filter if args.generator_filter else None
+    # Add transformer Oct-08-2025
+    transformer_filter = args.transformer_filter if args.transformer_filter else None
     load_filter = args.load_filter if args.load_filter else None
     store_filter = args.store_filter if args.store_filter else None
     storage_unit_filter = args.storage_unit_filter if args.storage_unit_filter else None
@@ -1881,6 +2079,7 @@ if __name__ == "__main__":
         # add some dummy components to dummy network
         network.add("Bus", "electricity")
         network.add("Bus", "hydrogen")
+        network.add("Bus", "electricity-LV")
         network.add("Generator", "wind", bus = "electricity")
         network.add("Generator", "solar", bus = "electricity")
         network.add("Load", "transport", bus = "electricity")
@@ -1888,10 +2087,13 @@ if __name__ == "__main__":
         network.add("Store", "battery", bus = "electricity")
         network.add("StorageUnit", "hydro", bus = "electricity")
         network.add("Link", "electrolysis", bus0 = "electricity", bus1 = "hydrogen")
+        network.add("Transformer", "HTB-HTA", bus0 = "electricity", bus1 = "electricity-LV")
 
 
         # generate topographical representation of dummy network
-        status = generate(network, focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
+        status = generate(network, focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, transformer_filter = transformer_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
+        # Added transformer
+        #status = generate(network, focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, transformer_filter = transformer_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
 
 
     # set exit code and finish
