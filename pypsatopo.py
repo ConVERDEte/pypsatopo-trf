@@ -3,7 +3,7 @@
 
 
 __project__ = "PyPSATopo"
-__version__ = "1.1.3"
+__version__ = "1.1.3.2"
 __description__ = "PyPSATopo is a tool that allows generating the topographical representation of any arbitrary PyPSA-based network"
 __license__ = "BSD 3-Clause"
 __author__ = "Energy Systems Group at Aarhus University (Denmark)"
@@ -45,13 +45,13 @@ DOT_REPRESENTATION = {"BUS": "   \"%s (bus)\" [label = <<font color = \"%s\">%s<
                       "BROKEN_MULTI_LINK_BRANCH": "   \"%s\" -> \"%s\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Multi-link: %s\nFrom: %s\nTo: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f MW\nEfficiency: %.2f\nCapital cost: %.2f currency/MW\nMarginal cost: %s currency/MWh\n\nOptimised nominal power: 0.00 MW\nPower time series (%s): %s MW\nPower time series (%s): %s MW\", style = \"setlinewidth(%.2f), dashed\", color = \"%s\", arrowhead = \"%s\", arrowsize = %.2f]",
                       "LINE": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Line: %s\nBus0: %s\nBus1: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f MVA\nCapital cost: %.2f currency/MVA\n\nOptimised nominal power: %.2f MVA\nPower time series (p0): %s MW\nPower time series (p1): %s MW\", style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"%s\", arrowtail = \"%s\", arrowsize = %.2f, dir = \"both\"]",
                       "BROKEN_LINE": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Line: %s\nBus0: %s\nBus1: %s\nCarrier: %s\nExtendable nominal power: %s\nNominal power: %.2f MVA\nCapital cost: %.2f currency/MVA\n\nOptimised nominal power: 0.00 MVA\nPower time series (p0): N/A MW\nPower time series (p1): N/A MW\", style = \"setlinewidth(%.2f), dashed\", color = \"%s\", arrowhead = \"%s\", arrowtail = \"%s\", arrowsize = %.2f, dir = \"both\"]",
-                      "TRANSFORMER": "    \"%s (transformer)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Transformer: %s\nBus0: %s\nBus1: %s\nExtendable nominal power: %s\nNominal power: %.2f MW\nCapital cost: %.2f \", shape = \"circle\", width = %.2f, style = \"setlinewidth(%.2f)\", color = \"%s\"]   \"%s (transformer)\" -> \"%s (bus)\" [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]"
-                      #"TRANSFORMER": "    \"%s (transformer)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Transformer: %s\nBus0: %s\nBus1: %s\nExtendable nominal power: %s\nNominal power: %.2f MW\nCapital cost: %.2f \", shape = \"circle\", width = %.2f, style = \"setlinewidth(%.2f)\", color = \"%s\"]"
-#GENERATOR": "   \"%s (generator)\" [label = <<font color = \"%s\">%s</font>>,
-                     }
+                      # We are using doublecircle to reprsent a trasnformer
+                      "TRANSFORMER": "    \"%s (transformer)\" [label = <<font color = \"%s\">%s</font>>, tooltip = \"Transformer: %s\nBus0: %s\nBus1: %s\nExtendable nominal power: %s\nNominal power: %.2f MW\nCapital cost: %.2f \", shape = \"doublecircle\", width = %.2f, style = \"setlinewidth(%.2f)\", color = \"%s\"]   \"%s (transformer)\" -> \"%s (bus)\" [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]"
+}
 FILE_OUTPUT = "topography.svg"
 FILE_FORMAT = "svg"   # acceptable values are: "svg", "png", "jpg", "gif", "pdf" and "ps"
-BACKGROUND_COLOR = "transparent"
+#BACKGROUND_COLOR = "transparent"
+BACKGROUND_COLOR = "white"
 NETWORK_NAME = "My Network"
 RANK_DIRECTION = "TB"   # acceptable values are: "TB" (top to bottom), "BT" (bottom to top), "LR" (left to right) and "RL" (right to left)
 RANK_SEPARATION = 1.0
@@ -194,7 +194,7 @@ def _get_components(network, focus, log, log_info, log_warning):
     if log or log_info:
         print("[INF] Retrieving buses from network")
     buses = network.buses
-    print(f"Buses in network: {buses}")
+    ##print(f"Buses in network: {buses}")
 
     buses_t = getattr(network, "buses_t", None)
     for i in range(len(buses)):
@@ -203,7 +203,7 @@ def _get_components(network, focus, log, log_info, log_warning):
         unit = "MW" if buses.unit.iloc[i] == "None" else buses.unit.iloc[i]
         p_time_series = _format_series(buses_t.p[bus]) if buses_t and bus in buses_t.p else "N/A"
         result[bus] = {"generators": list(),"transformers": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "transformers_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": False, "selected": False, "carrier": carrier, "unit": unit, "p_time_series": p_time_series}
-        print(f"result - bus: {bus} - {result[bus]}")
+        ##print(f"result - bus: {bus} - {result[bus]}")
 
     # get generators from (PyPSA) network
     if log or log_info:
@@ -240,13 +240,13 @@ def _get_components(network, focus, log, log_info, log_warning):
             _MISSING_BUS_COUNT += 1
             result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         result[bus]["generators"].append([generator, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, False])
-        print(f"\nresult generators - bus: {bus} - {result[bus]["generators"]}")
+        ##print(f"\nresult generators - bus: {bus} - {result[bus]["generators"]}")
 
     # get transformers from (PyPSA) network   
     if log or log_info:
         print("[INF] Retrieving transformers from network")
     transformers = network.transformers
-    print(f"\nTransformers in network: {transformers}")
+    ##print(f"\nTransformers in network: {transformers}")
 
     transformers_t = getattr(network, "transformers_t", None)
     for i in range(len(transformers)):
@@ -255,7 +255,7 @@ def _get_components(network, focus, log, log_info, log_warning):
         bus1 = transformers.bus1.iloc[i]
         #carrier = transformers.carrier.iloc[i]
         tmp = buses.loc[bus].unit
-        print(f"trans. unit: {tmp}")
+        ##print(f"trans. unit: {tmp}")
 
         unit = "MW" if tmp == "None" else tmp
         s_nom_extendable = "True" if transformers.s_nom_extendable.iloc[i] else "False"
@@ -283,7 +283,8 @@ def _get_components(network, focus, log, log_info, log_warning):
             result[bus] = {"generators": list(), "transformers": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         #result[bus]["transformers"].append([transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, False])
         result[bus]["transformers"].append([transformer, bus1, s_nom_extendable, s_nom, capital_cost, False])
-        print(f"Result transformers - bus: {bus} -  {result[bus]["transformers"]}")
+        result[bus1]["transformers"].append([transformer, bus, s_nom_extendable, s_nom, capital_cost, False])
+        ##print(f"Result transformers - bus: {bus} -  {result[bus]["transformers"]}")
 
     # get loads from (PyPSA) network
     if log or log_info:
@@ -923,8 +924,8 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     for bus, values in buses.items():
 
         # represent bus in DOT
-        print(f"transformers_count: {buses[bus]["transformers_count"]}")
-        print("")
+        ##print(f"transformers_count: {buses[bus]["transformers_count"]}")
+        ##print("")
         if values["missing"]:
             if values["selected"]:
                 result_buses.append(missing_bus_representation % (bus, TEXT_COLOR, _replace(bus), bus, buses[bus]["generators_count"], buses[bus]["transformers_count"],buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, BROKEN_MISSING_COLOR))
@@ -933,30 +934,16 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
         else:
             if values["selected"]:
                 bus_color = carriers[values["carrier"]] if values["carrier"] in carriers else BUS_COLOR
-                print(f"\nbus representation - bus: {bus} - {buses[bus]}")
-
-                # Add debugging before the problematic line
-                print(f"bus: {bus} ({type(bus)})")
-                print(f"TEXT_COLOR: {TEXT_COLOR} ({type(TEXT_COLOR)})")
-                print(f"replace(bus): {_replace(bus)}")
-                print(f"values['carrier']: {values['carrier']} ({type(values['carrier'])})")
-                print(f"values['unit']: {values['unit']} ({type(values['unit'])})")
-
-                # Check all the counts
-                for key in ["generators_count", "transformers_count", "loads_count", "stores_count", 
-                            "storage_units_count", "incoming_links_count", "outgoing_links_count", "lines_count"]:
-                    print(f"buses[bus]['{key}']: {buses[bus][key]} ({type(buses[bus][key])})")
-
                 result_buses.append(bus_representation % (bus, TEXT_COLOR, _replace(bus), bus, values["carrier"], values["unit"], buses[bus]["generators_count"], buses[bus]["transformers_count"], buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["p_time_series"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, bus_color))
             elif context:
                 result_buses.append(bus_representation % (bus, FADED_TEXT_COLOR, _replace(bus), bus, values["carrier"], values["unit"], buses[bus]["generators_count"], buses[bus]["transformers_count"],buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["p_time_series"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, FADED_COMPONENT_COLOR))
 
-        print(f"\nresult_buses: {result_buses}")
+        ##print(f"\nresult_buses: {result_buses}")
 
         # represent generators (attached to the bus) in DOT
         generators = values["generators"]
-        print(f"generators_count: {buses[bus]["generators_count"]}")
-        print(f"generators: {generators}")
+        ##print(f"generators_count: {buses[bus]["generators_count"]}")
+        ##print(f"generators: {generators}")
 
         for generator, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected in generators:
             if selected:
@@ -967,74 +954,18 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
 
         # represent transformers (attached to the bus) in DOT
         transformers = values["transformers"]
-        print(f"transformers_count: {buses[bus]["transformers_count"]}")
-        print(f"transformers: {transformers}")
+        ##print(f"transformers_count: {buses[bus]["transformers_count"]}")
+        ##print(f"transformers: {transformers}")
 
         #for transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected in transformers:
         for transformer, bus1, s_nom_extendable, s_nom, capital_cost, selected in transformers:
             if selected:
                 transformer_color = carriers[carrier] if carrier in carriers else TRANSFORMER_COLOR
-                print(f"transformer_color: { transformer_color } "  )
-                #result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, s_nom_extendable, s_nom, unit, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color, bus, transformer, LINK_THICKNESS, transformer_color))
-                #"TRANSFORMER": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, 
-                # tooltip = \"Transformer: %s\n
-                # Bus0: %s\n
-                # Bus1: %s\n
-                # Extendable nominal power: %s\n
-                # Nominal power: %.2f MW\n
-                # Capital cost: %.2f currency/MW\", 
-                # style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"%s\", arrowsize = %.2f]"
-
-                # "TRANSFORMER": "   \"%s (bus)\" -> \"%s (bus)\" [label = <<font color = \"%s\">%s</font>>, 
-                # tooltip = \"Transformer: %s\n
-                # Bus0: %s\n
-                # Bus1: %s\n
-                # Extendable nominal power: %s\n
-                # Nominal power: %.2f MW\n
-                # Capital cost: %.2f currency/MW\", 
-                # shape = \"circle\", 
-                # width = %.2f, 
-                # style = \"setlinewidth(%.2f)\", color = \"%s\"]   
-                # \"%s (transformer)\" -> \"%s (bus)\" 
-                # [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]"
-
-
-                #"GENERATOR": "   \"%s (generator)\" [label = <<font color = \"%s\">%s</font>>, 
-                # tooltip = \"Generator: %s\n
-                # Bus: %s\n
-                # Carrier: %s\n
-                # Extendable nominal power: %s\n
-                # Nominal power: %.2f %s\n
-                # Power set: %s %s\n
-                # Efficiency: %.2f\nC
-                # apital cost: %.2f currency/%s\n
-                # Marginal cost: %s currency/%sh\n\n
-                # Optimised nominal power: %.2f %s\n
-                # Power time series: %s %s\", 
-
-                # shape = \"circle\", 
-                # width = %.2f, 
-                # style = \"setlinewidth(%.2f)\", 
-                # color = \"%s\"]   \"%s (generator)\" -> \"%s (bus)\" 
-                # [style = \"setlinewidth(%.2f)\", color = \"%s\", arrowhead = \"none\"]",
-
-                # Add this right before line 1021 to see what's causing the issue
-                print(f"\ntransformer: {transformer} (type: {type(transformer)})")
-                print(f"TEXT_COLOR: {TEXT_COLOR} (type: {type(TEXT_COLOR)})")
-                print(f"replace(transformer): {_replace(transformer)}")
-                print(f"bus: {bus} (type: {type(bus)})")
-                print(f"bus1: {bus1} (type: {type(bus1)})")
-                print(f"s_nom_extendable: {s_nom_extendable} (type: {type(s_nom_extendable)})")
-                print(f"s_nom: {s_nom} (type: {type(s_nom)})")
-                print(f"capital_cost: {capital_cost} (type: {type(capital_cost)})")
-                print(f"TRANSFORMER_MINIMUM_WIDTH: {TRANSFORMER_MINIMUM_WIDTH} (type: {type(TRANSFORMER_MINIMUM_WIDTH)})")
-                print(f"TRANSFORMER_THICKNESS: {TRANSFORMER_THICKNESS} (type: {type(TRANSFORMER_THICKNESS)})")
-                print(f"transformer_color: {transformer_color} (type: {type(transformer_color)})")
-                      
-                result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color, bus, transformer, LINK_THICKNESS, transformer_color))
+                ##print(f"transformer_color: { transformer_color } "  )
+    
+                result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color, transformer, bus1, LINK_THICKNESS, transformer_color))
                 #result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color))
  
-
             elif context and (not values["missing"] or broken_missing):
                 result_transformers.append(transformer_representation % (transformer, FADED_TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, FADED_COMPONENT_COLOR, transformer, bus, LINK_THICKNESS, FADED_COMPONENT_COLOR))
 
@@ -2088,13 +2019,12 @@ if __name__ == "__main__":
         network.add("StorageUnit", "hydro", bus = "electricity")
         network.add("Link", "electrolysis", bus0 = "electricity", bus1 = "hydrogen")
         network.add("Transformer", "HTB-HTA", bus0 = "electricity", bus1 = "electricity-LV")
+        #network.add("Line", "HTB-HTA", bus0 = "electricity", bus1 = "electricity-LV")
 
 
-        # generate topographical representation of dummy network
+        # generate topographical representation of dummy network -- # Added transformer
         status = generate(network, focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, transformer_filter = transformer_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
-        # Added transformer
-        #status = generate(network, focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, transformer_filter = transformer_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
-
+        
 
     # set exit code and finish
     sys.exit(status)
