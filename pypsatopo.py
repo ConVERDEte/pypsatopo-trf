@@ -960,9 +960,9 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
         #for transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected in transformers:
         for transformer, bus1, s_nom_extendable, s_nom, capital_cost, selected in transformers:
             if selected:
-                transformer_color = carriers[carrier] if carrier in carriers else TRANSFORMER_COLOR
+                #transformer_color = carriers[carrier] if carrier in carriers else TRANSFORMER_COLOR
                 ##print(f"transformer_color: { transformer_color } "  )
-    
+                transformer_color = TRANSFORMER_COLOR
                 result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color, transformer, bus1, LINK_THICKNESS, transformer_color))
                 #result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color))
  
@@ -1980,6 +1980,7 @@ if __name__ == "__main__":
         print("[INF] %s version %s" % (__project__, __version__))
 
 
+    print(f"Files: {files}")
     if files:
 
         # loop through files passed as arguments
@@ -1988,10 +1989,10 @@ if __name__ == "__main__":
             # generate output file name
             file_output = args.file_output[i] if args.file_output and i < len(args.file_output) else "%s.%s" % (files[i].rsplit(".", 1)[0], file_format)
 
-
+            print(f"Ready to process network for: {files[i]}")
             # generate topographical representation of network
-            status = generate(files[i], focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
-
+            status = generate(files[i], focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, transformer_filter = transformer_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
+            print(f"Status: {status}")
 
             # check status of generation
             if status:
