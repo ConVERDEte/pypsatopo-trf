@@ -10,7 +10,14 @@ __author__ = "Energy Systems Group at Aarhus University (Denmark)"
 __contact__ = "ricardo.fernandes@mpe.au.dk"
 __status__ = "Development"
 
-
+## ---------------------------- INSTALLATION NOTES --------------------------------------------
+# Right now it will not pip install, to use it on a new environment do thees steps
+#
+# 1:    pip install pypsatopo
+# 2:    change to: /opt/anaconda3/envs/PyPsaEnv/lib/python3.12/site-packages/       -- where PyPsaEnv is your env name and python3.12 is the matching python version
+# 3:    my pypsatopo to #pypsatopo
+# 4:    copy the new modified trasnformer enabled pypsatopo.py into the site-packages directory
+# 5:    make sure you reload all your modules and run your code
 
 # import necessary modules
 from collections import deque
