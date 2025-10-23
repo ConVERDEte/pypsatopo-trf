@@ -656,7 +656,7 @@ def _process_components(buses, bus_filter, generator_filter, transformer_filter,
     """
 
     carriers = dict()
-
+    print(f"Carriers dfiend as dict(): {carriers}")
 
     # loop through existing buses
     for bus, values0 in buses.items():
@@ -827,6 +827,7 @@ def _process_components(buses, bus_filter, generator_filter, transformer_filter,
                     buses[bus1]["lines_count"] += 1
 
 
+    print(f"Carriers returned: {carriers}")
     return carriers
 
 
@@ -872,6 +873,13 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     result_multi_link_branches = list()
     result_lines = list()
 
+
+    # Lets get the carriers/carrier colors
+    #carriers = network.carriers
+    #print(f"Carriers: {carriers}")
+
+    #if(len(carriers) > 0):
+    #    print(f"Use carrier table from network")
 
     # add carrier color table
     if carrier_color:
@@ -1713,7 +1721,20 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
     # get components from (PyPSA) network
     components = _get_components(pypsa_network, focus is not None, log, log_info, log_warning)
 
+    if(carrier_color):
+        print(f"Carrier color set -- Use specified colors for carriers")
+    else:
+        print(f"Carrier color not set")
 
+        # Get carrier colors from read in network
+        carriers = pypsa_network.carriers
+        if(carriers.empty):
+            print("Using auto-generated carrier colors.")
+        else:
+            print(f"Carriers from network: {carriers}")
+            carrier_color = carriers['color'].to_dict()
+            print(f"Carrier Color from Network dict.: {carrier_color}")
+            
     # process components
     if focus:
 
@@ -1972,6 +1993,9 @@ if __name__ == "__main__":
             carrier_color = dict()
             for i in range(0, len(args.carrier_color), 2):
                 carrier_color[args.carrier_color[i]] = args.carrier_color[i + 1]
+            print(f"Carrier Colors: {carrier_color}")
+
+
     file_format = args.file_format if args.file_format else FILE_FORMAT
 
 
