@@ -656,7 +656,6 @@ def _process_components(buses, bus_filter, generator_filter, transformer_filter,
     """
 
     carriers = dict()
-    print(f"Carriers dfiend as dict(): {carriers}")
 
     # loop through existing buses
     for bus, values0 in buses.items():
@@ -826,8 +825,6 @@ def _process_components(buses, bus_filter, generator_filter, transformer_filter,
                     buses[bus]["lines_count"] += 1
                     buses[bus1]["lines_count"] += 1
 
-
-    print(f"Carriers returned: {carriers}")
     return carriers
 
 
@@ -1722,18 +1719,22 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
     components = _get_components(pypsa_network, focus is not None, log, log_info, log_warning)
 
     if(carrier_color):
-        print(f"Carrier color set -- Use specified colors for carriers")
+        if log or log_info:
+            print("[INF] Carrier color set -- Use specified colors for carriers")
     else:
-        print(f"Carrier color not set")
+        if log or log_info:
+            print("[INF] Carrier color not set")
 
         # Get carrier colors from read in network
         carriers = pypsa_network.carriers
         if(carriers.empty):
-            print("Using auto-generated carrier colors.")
+            if log or log_info:
+                print("[INF] Using auto-generated carrier colors.")
         else:
-            print(f"Carriers from network: {carriers}")
+            if log or log_info:
+                print(f"[INF] Carriers from network: {carriers}")
+                print(f"[INF] Carrier Color from Network dict.: {carrier_color}")   
             carrier_color = carriers['color'].to_dict()
-            print(f"Carrier Color from Network dict.: {carrier_color}")
             
     # process components
     if focus:
