@@ -10,7 +10,7 @@ __author__ = "Energy Systems Group at Aarhus University (Denmark)"
 __contact__ = "ricardo.fernandes@mpe.au.dk"
 __status__ = "Development"
 
-## ---------------------------- INSTALLATION NOTES --------------------------------------------
+# ---------------------------- INSTALLATION NOTES --------------------------------------------
 # Right now it will not pip install, to use it on a new environment do thees steps
 #
 # 1:    pip install pypsatopo
