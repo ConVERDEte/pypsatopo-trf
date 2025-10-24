@@ -201,8 +201,7 @@ def _get_components(network, focus, log, log_info, log_warning):
     if log or log_info:
         print("[INF] Retrieving buses from network")
     buses = network.buses
-    ##print(f"Buses in network: {buses}")
-
+    
     buses_t = getattr(network, "buses_t", None)
     for i in range(len(buses)):
         bus = buses.index[i]
@@ -210,7 +209,6 @@ def _get_components(network, focus, log, log_info, log_warning):
         unit = "MW" if buses.unit.iloc[i] == "None" else buses.unit.iloc[i]
         p_time_series = _format_series(buses_t.p[bus]) if buses_t and bus in buses_t.p else "N/A"
         result[bus] = {"generators": list(),"transformers": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "transformers_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": False, "selected": False, "carrier": carrier, "unit": unit, "p_time_series": p_time_series}
-        ##print(f"result - bus: {bus} - {result[bus]}")
 
     # get generators from (PyPSA) network
     if log or log_info:
@@ -247,32 +245,25 @@ def _get_components(network, focus, log, log_info, log_warning):
             _MISSING_BUS_COUNT += 1
             result[bus] = {"generators": list(), "transformers": list(),"loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
         result[bus]["generators"].append([generator, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, False])
-        ##print(f"\nresult generators - bus: {bus} - {result[bus]["generators"]}")
+        
 
     # get transformers from (PyPSA) network   
     if log or log_info:
         print("[INF] Retrieving transformers from network")
     transformers = network.transformers
-    ##print(f"\nTransformers in network: {transformers}")
 
     transformers_t = getattr(network, "transformers_t", None)
     for i in range(len(transformers)):
         transformer = transformers.index[i]
         bus = transformers.bus0.iloc[i]
         bus1 = transformers.bus1.iloc[i]
-        #carrier = transformers.carrier.iloc[i]
         tmp = buses.loc[bus].unit
-        ##print(f"trans. unit: {tmp}")
 
         unit = "MW" if tmp == "None" else tmp
         s_nom_extendable = "True" if transformers.s_nom_extendable.iloc[i] else "False"
         s_nom = transformers.s_nom.iloc[i]
-        #p_set = _format_series(transformers_t.p_set[transformer]) if transformers_t and transformer in transformers_t.p_set else "%.2f" % transformers.p_set.iloc[i]
-        #efficiency = transformers.efficiency.iloc[i]
         capital_cost = transformers.capital_cost.iloc[i]
-        #marginal_cost = _format_series(transformers_t.marginal_cost[transformer]) if transformers_t and transformer in transformers_t.marginal_cost else "%.2f" % transformers.marginal_cost.iloc[i]
-        #p_nom_opt = transformers.p_nom_opt.iloc[i]
-        #p_time_series = _format_series(transformers_t.p[transformer]) if transformers_t and transformer in transformers_t.p else "N/A"
+
         if bus:
             if bus in result:
                 if result[bus]["missing"]:
@@ -288,11 +279,9 @@ def _get_components(network, focus, log, log_info, log_warning):
             bus = "bus #%d" % _MISSING_BUS_COUNT
             _MISSING_BUS_COUNT += 1
             result[bus] = {"generators": list(), "transformers": list(), "loads": list(), "stores": list(), "storage_units": list(), "links": list(), "multi_link_trunks": list(), "multi_link_branches": list(), "lines": list(), "generators_count": 0, "loads_count": 0, "stores_count": 0, "storage_units_count": 0, "incoming_links_count": 0, "outgoing_links_count": 0, "lines_count": 0, "missing": True, "selected": False, "carrier": "", "unit": "", "p_time_series": ""}
-        #result[bus]["transformers"].append([transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, False])
         result[bus]["transformers"].append([transformer, bus1, s_nom_extendable, s_nom, capital_cost, False])
         result[bus1]["transformers"].append([transformer, bus, s_nom_extendable, s_nom, capital_cost, False])
-        ##print(f"Result transformers - bus: {bus} -  {result[bus]["transformers"]}")
-
+        
     # get loads from (PyPSA) network
     if log or log_info:
         print("[INF] Retrieving loads from network")
@@ -692,17 +681,12 @@ def _process_components(buses, bus_filter, generator_filter, transformer_filter,
         # process transformers (attached to the bus)
         transformers = values0["transformers"]
         for values1 in transformers:
-            #transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected = values1
             transformer,  bus1, s_nom_extendable, s_nom, capital_cost, selected = values1
             if values0["selected"] and (not transformer_filter or transformer_filter.match(transformer)) and (not carrier_filter or carrier_filter.match(carrier)):
-                #if carrier_color:
-                #    if carrier and carrier not in carriers:
-                #        carriers[carrier] = None
                 values1[-1] = True
                 buses[bus]["transformers_count"] += 1
             elif context:
                 buses[bus]["transformers_count"] += 1
-            #print(f"transformers_count: {buses[bus]["transformers_count"]}")
 
         # process loads (attached to the bus)
         loads = values0["loads"]
@@ -878,13 +862,6 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     result_lines = list()
 
 
-    # Lets get the carriers/carrier colors
-    #carriers = network.carriers
-    #print(f"Carriers: {carriers}")
-
-    #if(len(carriers) > 0):
-    #    print(f"Use carrier table from network")
-
     # add carrier color table
     if carrier_color:
         if isinstance(carrier_color, bool) and carrier_color:
@@ -936,8 +913,6 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
     for bus, values in buses.items():
 
         # represent bus in DOT
-        ##print(f"transformers_count: {buses[bus]["transformers_count"]}")
-        ##print("")
         if values["missing"]:
             if values["selected"]:
                 result_buses.append(missing_bus_representation % (bus, TEXT_COLOR, _replace(bus), bus, buses[bus]["generators_count"], buses[bus]["transformers_count"],buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, BROKEN_MISSING_COLOR))
@@ -950,12 +925,8 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
             elif context:
                 result_buses.append(bus_representation % (bus, FADED_TEXT_COLOR, _replace(bus), bus, values["carrier"], values["unit"], buses[bus]["generators_count"], buses[bus]["transformers_count"],buses[bus]["loads_count"], buses[bus]["stores_count"], buses[bus]["storage_units_count"], buses[bus]["incoming_links_count"], buses[bus]["outgoing_links_count"], buses[bus]["lines_count"], values["p_time_series"], values["unit"], BUS_MINIMUM_WIDTH, BUS_THICKNESS, FADED_COMPONENT_COLOR))
 
-        ##print(f"\nresult_buses: {result_buses}")
-
         # represent generators (attached to the bus) in DOT
         generators = values["generators"]
-        ##print(f"generators_count: {buses[bus]["generators_count"]}")
-        ##print(f"generators: {generators}")
 
         for generator, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected in generators:
             if selected:
@@ -966,18 +937,13 @@ def _represent_components(buses, carriers, negative_efficiency, broken_missing, 
 
         # represent transformers (attached to the bus) in DOT
         transformers = values["transformers"]
-        ##print(f"transformers_count: {buses[bus]["transformers_count"]}")
-        ##print(f"transformers: {transformers}")
 
         #for transformer, carrier, unit, p_nom_extendable, p_nom, p_set, efficiency, capital_cost, marginal_cost, p_nom_opt, p_time_series, selected in transformers:
         for transformer, bus1, s_nom_extendable, s_nom, capital_cost, selected in transformers:
             if selected:
-                #transformer_color = carriers[carrier] if carrier in carriers else TRANSFORMER_COLOR
-                ##print(f"transformer_color: { transformer_color } "  )
                 transformer_color = TRANSFORMER_COLOR
                 result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color, transformer, bus1, LINK_THICKNESS, transformer_color))
-                #result_transformers.append(transformer_representation % (transformer, TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, transformer_color))
- 
+                
             elif context and (not values["missing"] or broken_missing):
                 result_transformers.append(transformer_representation % (transformer, FADED_TEXT_COLOR, _replace(transformer), transformer, bus, bus1, s_nom_extendable, s_nom, capital_cost, TRANSFORMER_MINIMUM_WIDTH, TRANSFORMER_THICKNESS, FADED_COMPONENT_COLOR, transformer, bus, LINK_THICKNESS, FADED_COMPONENT_COLOR))
 
@@ -1598,7 +1564,6 @@ def _generate_output(dot_representation, file_output, file_format, log, log_info
 
 
 
-#def generate(network, focus = None, neighbourhood = 0, bus_filter = None, generator_filter = None, transformer_filter = None, load_filter = None, store_filter = None, storage_unit_filter = None, link_filter = None, line_filter = None, carrier_filter = None, negative_efficiency = True, broken_missing = False, carrier_color = None, context = False, file_output = FILE_OUTPUT, file_format = FILE_FORMAT, log = False, log_info = False, log_warning = False):
 def generate(network, focus = None, neighbourhood = 0, bus_filter = None, generator_filter = None, transformer_filter = None,load_filter = None, store_filter = None, storage_unit_filter = None, link_filter = None, line_filter = None, carrier_filter = None, negative_efficiency = True, broken_missing = False, carrier_color = None, context = False, file_output = FILE_OUTPUT, file_format = FILE_FORMAT, log = False, log_info = False, log_warning = False):
 
     """
@@ -1896,8 +1861,6 @@ def generate(network, focus = None, neighbourhood = 0, bus_filter = None, genera
     result.append("   labelloc = \"t\"")
     result.append("   label = \"%s\n\n\n           \"" % network_name)
     # Add transformer
-    #result.append("   tooltip = \"Network: %s\nBuses: %d (out of %d)\nGenerators: %d (out of %d)\nTransformers: %d (out of %d)\nLoads: %s (out of %d)\nStores: %d (out of %d)\nStorage units: %d (out of %d)\nLinks: %d (out of %d)\nLines: %d (out of %d)\nSnapshots: %d\"" % (network_name, buses_count, len(pypsa_network.buses), generators_count, len(pypsa_network.generators), loads_count, len(pypsa_network.loads), stores_count, len(pypsa_network.stores), storage_units_count, len(pypsa_network.storage_units), links_count, len(pypsa_network.links), lines_count, len(pypsa_network.lines), len(pypsa_network.snapshots)))
-    #result.append("   tooltip = \"Network: %s\nBuses: %d (out of %d)\nGenerators: %d (out of %d)\nLoads: %s (out of %d)\nStores: %d (out of %d)\nStorage units: %d (out of %d)\nLinks: %d (out of %d)\nLines: %d (out of %d)\nSnapshots: %d\"" % (network_name, buses_count, len(pypsa_network.buses), generators_count, len(pypsa_network.generators), loads_count, len(pypsa_network.loads), stores_count, len(pypsa_network.stores), storage_units_count, len(pypsa_network.storage_units), links_count, len(pypsa_network.links), lines_count, len(pypsa_network.lines), len(pypsa_network.snapshots)))
     result.append("   tooltip = \"Network: %s\nBuses: %d (out of %d)\nGenerators: %d (out of %d)\nTransformers: %d (out of %d)\nLoads: %s (out of %d)\nStores: %d (out of %d)\nStorage units: %d (out of %d)\nLinks: %d (out of %d)\nLines: %d (out of %d)\nSnapshots: %d\"" % (network_name, buses_count, len(pypsa_network.buses), generators_count, len(pypsa_network.generators), transformers_count, len(pypsa_network.transformers),loads_count, len(pypsa_network.loads), stores_count, len(pypsa_network.stores), storage_units_count, len(pypsa_network.storage_units), links_count, len(pypsa_network.links), lines_count, len(pypsa_network.lines), len(pypsa_network.snapshots)))
  
     result.append("   rankdir = \"%s\"" % RANK_DIRECTION)
@@ -2010,9 +1973,9 @@ if __name__ == "__main__":
     # display PyPSATopo information
     if args.log or args.log_info:
         print("[INF] %s version %s" % (__project__, __version__))
+        print(f"[INF] Files: {files}")
 
-
-    print(f"Files: {files}")
+    
     if files:
 
         # loop through files passed as arguments
@@ -2021,11 +1984,12 @@ if __name__ == "__main__":
             # generate output file name
             file_output = args.file_output[i] if args.file_output and i < len(args.file_output) else "%s.%s" % (files[i].rsplit(".", 1)[0], file_format)
 
-            print(f"Ready to process network for: {files[i]}")
+            if args.log or args.log_info:
+                print(f"[INF] Ready to process network for: {files[i]}")
+
             # generate topographical representation of network
             status = generate(files[i], focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, transformer_filter = transformer_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
-            print(f"Status: {status}")
-
+        
             # check status of generation
             if status:
                 sys.exit(status)   # set exit code with returned status and exit
@@ -2052,8 +2016,6 @@ if __name__ == "__main__":
         network.add("StorageUnit", "hydro", bus = "electricity")
         network.add("Link", "electrolysis", bus0 = "electricity", bus1 = "hydrogen")
         network.add("Transformer", "HTB-HTA", bus0 = "electricity", bus1 = "electricity-LV")
-        #network.add("Line", "HTB-HTA", bus0 = "electricity", bus1 = "electricity-LV")
-
 
         # generate topographical representation of dummy network -- # Added transformer
         status = generate(network, focus = args.focus, neighbourhood = neighbourhood, bus_filter = bus_filter, generator_filter = generator_filter, transformer_filter = transformer_filter, load_filter = load_filter, store_filter = store_filter, storage_unit_filter = storage_unit_filter, link_filter = link_filter, line_filter = line_filter, carrier_filter = carrier_filter, negative_efficiency = not args.no_negative_efficiency, broken_missing = args.broken_missing, carrier_color = carrier_color, context = args.context, file_output = file_output, file_format = file_format, log = args.log, log_info = args.log_info, log_warning = args.log_warning)
